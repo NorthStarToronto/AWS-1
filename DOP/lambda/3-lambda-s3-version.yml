@@ -1,0 +1,59 @@
+Parameters:
+  S3BucketParam:
+    Type: String
+    Default: aws-dop-jasonlee-toronto
+  S3KeyParam:
+    Type: String
+    Default: python-lambda-zipped-package.zip
+  S3ObjectVersionParam:
+    Type: String
+    Default: xXf.lAcAFOKsAISgeaB6794aec9r1Csr	
+Resources: 
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - "s3:*"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+            - "logs:CreateLogGroup"
+            - "logs:CreateLogStream"
+            - "logs:PutLogEvents"
+            Resource: "*"
+  PackagedNVersionedLambdaFunction: 
+    Type: "AWS::Lambda::Function"
+    Properties: 
+      Handler: "index.handler"
+      FunctionName: python-packaged-versioned-lambda-demo
+      Role: 
+        Fn::GetAtt: 
+          - "LambdaExecutionRole"
+          - "Arn"
+      Runtime: "python3.7"
+      Code: 
+        S3Bucket: !Ref S3BucketParam
+        S3Key: !Ref S3KeyParam
+        S3ObjectVersion: !Ref S3ObjectVersionParam
+Outputs:
+    LambdaFunctionName:
+      Description: Lambda function name
+      Value: !Ref PackagedNVersionedLambdaFunction
+      Export:
+        Name: PackagedNVersionedLambdaFunctionFunctionName

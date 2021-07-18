@@ -1,0 +1,4 @@
+aws cloudformation describe-stacks | \
+jq -r '.Stacks[] | select(.StackName|test("sam-python.")) | .Outputs[] | .OutputKey, .Description'
+
+curl $API_ENDPOINT

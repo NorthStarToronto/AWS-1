@@ -1,0 +1,2 @@
+aws ecs describe-clusters --cluster ecs-alb-demo | \
+jq -r '.clusters[] | .clusterName, .status, .registeredContainerInstancesCount, .runningTasksCount, .activeServicesCount'

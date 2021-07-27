@@ -1,0 +1,2 @@
+aws cloudwatch describe-alarms | \
+jq -r '.MetricAlarms[] | select(.AlarmName | contains("TargetTracking")) | del(.AlarmName, .AlarmArn, .StateReasonData)'

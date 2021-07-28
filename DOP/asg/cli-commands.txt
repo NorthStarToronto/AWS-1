@@ -1,2 +1,10 @@
 aws cloudwatch describe-alarms | \
 jq -r '.MetricAlarms[] | select(.AlarmName | contains("TargetTracking")) | del(.AlarmName, .AlarmArn, .StateReasonData)'
+
+
+aws autoscaling complete-lifecycle-action \
+--lifecycle-action-result CONTINUE  \
+--lifecycle-hook-name LaunchHook \
+--auto-scaling-group-name demo-asg-launch-template \
+--instance-id i-0ef4e02b5729795ab \
+--region us-east-1

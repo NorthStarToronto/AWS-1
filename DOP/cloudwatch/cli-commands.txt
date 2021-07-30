@@ -15,3 +15,5 @@ jq -r '.logGroups[] | del(.arn)'
 
 aws logs describe-log-groups --log-group-name-prefix error_log | \
 jq -r '.logGroups[] | del(.arn)'
+
+aws ssm get-parameter --name AmazonCloudWatch-linux | jq -r '.Parameter | del(.ARN)'

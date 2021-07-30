@@ -9,3 +9,9 @@ aws cloudwatch list-metrics --namespace Custom
 aws cloudformation create-stack --stack-name launch-ec2-with-ucwa --template-body file://launch-ec2-with-uwc-agent.yml --capabilities CAPABILITY_NAMED_IAM
 aws cloudformation describe-stack-resources --stack-name launch-ec2-with-ucwa
 aws cloudformation describe-stacks --stack-name launch-ec2-with-ucwa
+
+aws logs describe-log-groups --log-group-name-prefix access_log | \
+jq -r '.logGroups[] | del(.arn)'
+
+aws logs describe-log-groups --log-group-name-prefix error_log | \
+jq -r '.logGroups[] | del(.arn)'

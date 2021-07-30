@@ -1,0 +1,11 @@
+aws cloudwatch put-metric-data --metric-name DemoCustomMetric \
+--namespace Custom --value 23 \
+--dimensions InstanceId=1-23456789,InstanceType=t2.micro \
+--region us-east-1
+
+aws cloudwatch list-metrics --namespace Custom
+
+
+aws cloudformation create-stack --stack-name launch-ec2-with-ucwa --template-body file://launch-ec2-with-uwc-agent.yml --capabilities CAPABILITY_NAMED_IAM
+aws cloudformation describe-stack-resources --stack-name launch-ec2-with-ucwa
+aws cloudformation describe-stacks --stack-name launch-ec2-with-ucwa

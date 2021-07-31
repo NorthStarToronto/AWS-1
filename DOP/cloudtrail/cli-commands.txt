@@ -1,0 +1,37 @@
+aws cloudtrail list-trails | jq -r '.Trails[] | select(.Name | contains("demo-trail")) | .TrailARN'
+
+
+TRAIL_ARN=$(aws cloudtrail list-trails | jq -r '.Trails[] | select(.Name | contains("demo-trail")) | .TrailARN')
+
+aws cloudtrail get-trail --name demo-trail-events
+
+aws cloudtrail describe-trails --trail-name demo-trail-events
+
+
+aws cloudtrail get-event-selectors --trail-name demo-trail-events | \
+jq -r '.EventSelectors[]'
+
+
+aws cloudtrail validate-logs --start-time 2020-07-14T00:00:00Z --trail-arn $TRAIL_ARN
+
+
+
+aws cloudtrail describe-trails --trail-name demo-trail-events | \jq -r '.trailList[] |=del(.TrailARN)' > response.json
+
+
+
+
+ aws s3api get-bucket-notification-configuration --bucket aws-cloudtrail-logs-250580094848-0a074318
+
+
+ aws cloudtrail list-trails
+ 
+ aws cloudtrail describe-trails --trail-name-list demo-trail-events | \
+ jq -r '.trailList[] | del(.TrailARN)'
+
+
+aws s3api get-bucket-notification-configuration --bucket aws-cloudtrail-logs-250580094848-0a074318 | \
+jq -r '.QueueConfigurations[] | del(.QueueArn)'
+
+
+aws events describe-rule --name s3-delete-objects-sns-rule

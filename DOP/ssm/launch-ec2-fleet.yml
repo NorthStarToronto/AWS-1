@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Sample template for launching EC2 instance fleet
+Parameters:
+  KeyPair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: The name of non-CloudFormation EC2 key pair to allow ssh access into EC2 instance
+    Default: test1
+  EC2InstanceRole:
+    Type: String
+    Description: The name of non-CloudFormation EC2 instance role to attach to the EC2 instance profile
+    Default: EC2SSMRole
+  EC2TagValue:
+    Type: String
+    Description: The value of EC2 environment tag
+    Default: Development
+  SecurityGroupId:
+    Type: String
+    Description: The id of non-CloudFormation security group that opens ssh and http ports
+    Default: sg-0ef8e7b230c7d56f7
+  SubnetAId:
+    Type: String
+    Description: The id of default us-east-1a subnet
+    Default: subnet-ea08a4b5
+  SubnetBId:
+    Type: String
+    Description: The id of default us-east-1b subnet
+    Default: subnet-a72182c1
+  SubnetCId:
+    Type: String
+    Description: The id of default us-east-1c subnet
+    Default: subnet-528b2273
+  NumberOfEC2FleetInstances:
+    Type: Number
+    Description: The total number of EC2 instances in the EC2 Fleet
+    Default: 2
+Resources:
+  InstanceProfileSSMDemo:
+    Type: AWS::IAM::InstanceProfile
+    # DependedOn: SSMDemoLaunchTemplate
+    Properties:
+      Path: '/'
+      Roles:
+        - !Ref EC2InstanceRole
+  SSMDemoLaunchTemplate:
+    # Tha launch template that will be used to deploy the EC2 instances with SSM agent installed and running
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: SSMDemoLaunchTemplate
+      LaunchTemplateData:
+        BlockDeviceMappings:
+        - DeviceName: "/dev/xvda"
+          Ebs:
+            DeleteOnTermination: true
+            VolumeSize: 8
+            VolumeType: gp2
+        IamInstanceProfile:
+          Name: !Ref InstanceProfileSSMDemo
+        ImageId: ami-009d6802948d06e52
+        InstanceType: t2.micro
+        KeyName: !Ref KeyPair
+        SecurityGroupIds:
+        - !Ref SecurityGroupId
+        TagSpecifications:
+        - ResourceType: instance
+          Tags:
+          - Key: Name
+            Value: SSM
+          - Key: Environment
+            Value: !Ref EC2TagValue
+        UserData:
+          Fn::Base64: |
+            #!/bin/bash -xe
+            # Install Httpd server
+            sudo yum update -y
+            sudo yum install httpd -y
+            echo "Thank You! :) ... from $(hostname -f)" > /var/www/html/index.html
+            sudo systemctl start httpd
+            sudo systemctl enable httpd      
+  SSMDemoOnDemandFleet:
+    Type: AWS::EC2::EC2Fleet
+    Properties:
+      Type: maintain
+      ExcessCapacityTerminationPolicy: termination
+      LaunchTemplateConfigs:
+      - LaunchTemplateSpecification:
+          LaunchTemplateName: SSMDemoLaunchTemplate
+          Version: !GetAtt SSMDemoLaunchTemplate.LatestVersionNumber
+        Overrides:
+        - SubnetId: !Ref SubnetAId
+        - SubnetId: !Ref SubnetBId
+        - SubnetId: !Ref SubnetCId
+      OnDemandOptions:
+        AllocationStrategy: lowest-price
+      ReplaceUnhealthyInstances: true
+      TargetCapacitySpecification:
+        DefaultTargetCapacityType: on-demand
+        TotalTargetCapacity: !Ref NumberOfEC2FleetInstances
+
+
+
+
+
+    

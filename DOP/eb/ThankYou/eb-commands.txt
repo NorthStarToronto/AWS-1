@@ -1,0 +1,26 @@
+eb init -i
+
+aws elasticbeanstalk describe-environments --application-name thank-you --environment-names env-dev
+
+aws elasticbeanstalk describe-configuration-options --application-name thank-you --environment-name env-dev
+
+aws elasticbeanstalk describe-configuration-settings --application-name thank-you --environment-name env-dev
+
+eb setenv ENABLE_COOL_NEW_FEATURE=
+
+eb setenv ENABLE_NEW_FEATURE=true
+
+eb printenv
+
+eb config list
+
+eb list
+
+ls -al .elasticbeanstalk/saved_configs/
+
+eb config put prod
+
+eb config env-dev --cfg prod
+
+
+eb terminate --all

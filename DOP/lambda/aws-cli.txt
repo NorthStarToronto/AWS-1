@@ -1,0 +1,19 @@
+aws s3api list-object-versions --bucket aws-dop-jasonlee-toronto \
+--prefix python-lambda-zipped-package.zip | \
+jq -r '.Versions[] | .IsLatest, .LastModified'
+
+aws cloudformation describe-stack-resources --stack-name python-packaged-versioned-demo | \
+jq -r '.StackResources[] | .ResourceType, .ResourceStatus'
+
+aws cloudformation list-exports | \
+jq -r '.Exports[] | select(.Name | test("PackagedNVersioned.")) | .Name, .Value'
+
+aws cloudformation delete-stack --stack-name python-packaged-versioned-demo
+
+aws cloudformation delete-stack --stack-name python-packaged-lambda-demo
+
+aws cloudformation delete-stack --stack-name python-inline-lambda-demo
+
+
+aws cloudformation describe-stack-resources --stack-name sam-python37-demo |\
+jq -r '.StackResources[] | .PhysicalResesourceId, .ResourceType'

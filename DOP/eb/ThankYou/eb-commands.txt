@@ -76,3 +76,8 @@ aws elasticbeanstalk describe-environment-resources --environment-name env-dev |
 jq -r '.EnvironmentResources | [keys]'
 
 
+aws cloudformation describe-stack-resources --stack-name $EB_STACK_NAME | \
+jq -r '.StackResources[] | .LogcialResourceId, .ResourceType'
+
+aws elasticbeanstalk describe-configuration-settings --application-name thank-you --environment-name worker-env | \
+jq -r '.ConfigurationSettings[].OptionSettings[] | select(.OptionName == "Worker")'

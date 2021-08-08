@@ -6,7 +6,12 @@ aws elasticbeanstalk describe-environments --application-name thank-you --enviro
 
 aws elasticbeanstalk describe-configuration-options --application-name thank-you --environment-name env-dev
 
-aws elasticbeanstalk describe-configuration-settings --application-name thank-you --environment-name env-dev
+aws elasticbeanstalk describe-configuration-settings --application-name thank-you --environment-name env-dev | \
+jq -r '.ConfigurationSettings[].OptionSettings[] | [.ResourceName, .Namespace, .OptionName]'
+
+
+aws elasticbeanstalk describe-configuration-settings --application-name thank-you --environment-name env-dev | \
+jq -r '.ConfigurationSettings[].OptionSettings[] | select([.OptionName] | inside(["MinSize", "MaxSize", "Cooldown"]))'
 
 eb setenv ENABLE_COOL_NEW_FEATURE=
 
@@ -26,3 +31,44 @@ eb config env-dev --cfg prod
 
 
 eb terminate --all
+
+
+
+aws s3api list-objects --bucket elasticbeanstalk-us-east-1-250580094848 | \
+jq -r '.Contents[].Key'
+
+
+aws s3api delete-objects --bucket elasticbeanstalk-us-east-1-250580094848 \
+--delete file://.elasticbeanstalk
+
+
+aws elasticbeanstalk describe-environment-resources --environment-name env-dev
+
+
+
+aws cloudwatch describe-alarms --alarm-name-prefix awse | \
+jq -r '.MetricAlarms[] | del(.AlarmName, .AlarmArn, .OKActions, .AlarmConfigurationUpdatedTimestamp, .InsufficientDataActions, .StateUpdatedTimestamp)'
+
+
+aws elasticbeanstalk describe-appliation-versions --application-name ThankYou
+
+
+aws s3api list-object --bucket 
+
+
+aws s3api list-objects --bucket $EB_BUCKET_NAME --prefix $EB_EXTENSIONS_PREFIX/_embedded_ | \
+jq -r '.Contents[].Key'
+
+aws s3api list-objects --bucket $EB_BUCKET_NAME --prefix resources/template | \
+jq -r '.Contents[].Key'
+
+
+aws elasticbeanstalk describe-environment-resources --environment-name env-dev | \
+jq -r '.EnvironmentResources | keys'
+
+EB_STACK_NAME="awseb-e-ex6tqjapn5-stack"
+
+
+aws cloudformation describe-stack-resources --stack-name $EB_STACK_NAME | \
+jq -r '.StackResources[] | [.LogicalResourceId, .ResourceType]'
+

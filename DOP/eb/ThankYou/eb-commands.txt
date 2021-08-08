@@ -72,3 +72,7 @@ EB_STACK_NAME="awseb-e-ex6tqjapn5-stack"
 aws cloudformation describe-stack-resources --stack-name $EB_STACK_NAME | \
 jq -r '.StackResources[] | [.LogicalResourceId, .ResourceType]'
 
+aws elasticbeanstalk describe-environment-resources --environment-name env-dev | \
+jq -r '.EnvironmentResources | [keys]'
+
+

@@ -1,0 +1,36 @@
+aws ec2 describe-security-groups --group-names ssh-http-security-group | \
+jq -r '.SecurityGroups[] | .Description, .GroupName, .VpcId'
+
+
+aws cloudformation create-stack --stack-name Launch-ec2-fleet-with-ssm-agent --template-body file://launch-ec2-fleet.yml --capabilities CAPABILITY_NAMED_IAM
+
+
+aws cloudformation describe-stack-resources --stack-name Launch-ec2-fleet-wth-ssm-agent | \
+jq -r '.StackResources[] | .LogicalResourceId, .ResourceType, .ResourceStatus'
+
+
+ws ec2 describe-fleets --fleet-ids $FLEET_ID | \
+> jq -r '.Fleets[] | del(.FleetId, .LaunchTemplateConfigs)'
+
+
+aws ec2 describe-instances --filters "Name=tag:Name,Values=SSM" "Name=tag:Environment,Values=Development" | \
+jq -r '.Reservations[].Instances[] | select(.State.Name | match("running")) | .Placement.AvailabilityZone'
+
+
+aws cloudformation describe-stacks | \
+jq -r '.Stacks[] | select(.StackName | contains("QuickSetup")) | del(.StackId, .Parameters)' 
+
+
+aws ssm list-commands | \
+jq -r '.Commands[] | select(.DocumentName | contains("RunShellScript"))' | \
+jq -r 'del(.CommmandId, .OutputS3BucketName,.NotificationConfig, .CloudWatchOutputConfig)'
+
+aws ssm list-compliance-summaries | \
+jq -r '.ComplianceSummaryItems[] ' | \
+jq -r '.ComplianceType, .CompliantSummary, .NonCompliantSummary.NonCompliantCount'
+
+aws ssm get-parameters \
+--names /Prod/DbPassword /LAMBDA/TEST/DB_NAME --with-decryption
+
+aws ssm get-parameter \
+--name /EC2/AMI_ID

@@ -2,3 +2,43 @@ aws cloudformation describe-stacks | \
 jq -r '.Stacks[] | select(.StackName|test("sam-python.")) | .Outputs[] | .OutputKey, .Description'
 
 curl $API_ENDPOINT
+
+
+ sam build
+
+
+ sam package --output-template-file packaged.yaml --s3-bucket aws-dop-jasonlee-toronto --region us-east-1
+
+
+ sam deploy --template-file packaged.yaml --stack-name sam-api-lambda-canary-deployment-demo --capabilities CAPABILITY_IAM
+
+
+aws lambda update-alias --name dev --function-name ThankYouFunction \
+--routing-config AdditionalVersionWeights={"1"=0.50}
+
+
+aws cloudformation describe-stack-resources --stack-name sam-api-lambda-canary-deployment-demo | \
+jq -r '.StackResources[] | .LogicalResourceId, .ResourceType, .ResourceStatus'
+
+
+aws cloudformation describe-stacks --stack-name sam-api-lambda-canary-deployment-demo | \
+jq -r '.Stacks[].Outputs[] | select(.OutputKey | match("ThankYouFunction$"))'
+
+aws lambda list-versions-by-function --function-name ThankYouFunction | \
+jq -r '.Versions[] | .FunctionName, .Version'
+
+
+aws lambda update-alias --name prod --function-name ThankYouFunction \
+--routing-config AdditionalVersionWeights={"3"=0.50}
+
+
+aws apigateway update-stage --rest-api-id w9okmxf5j3
+\--stage-name prod \
+--canary-settings '{\
+    "percentTraffic": 50.0
+}
+
+
+aws apigateway get-stages --rest-api-id w9okmxf5j3
+
+aws apigateway delete-stage --rest-api-id w9okmxf5j3 --stage-name Stage

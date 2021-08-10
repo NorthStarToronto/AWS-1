@@ -1,0 +1,14 @@
+TagBasedGroup:
+  Type: "AWS::ResourceGroups::Group"
+  Properties:
+    Name: "MyTagBasedResourceGroup"
+    Description: "A group that is based on a tag query"
+    ResourceQuery:
+      Type: "TAG_FILTERS_1_0"
+      Query:
+        ResourceTypeFilters:
+          - "AWS::AllSupported"
+        TagFilters:
+          - Key: "Usage"
+            Values:
+              - "Integration Tests"

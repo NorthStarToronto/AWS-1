@@ -1,1 +1,3 @@
 aws s3api list-object-versions --bucket codedeploy-us-east-1-jasonleetoronto
+
+aws s3api get-bucket-versioning --bucket codedeploy-us-east-1-jasonleetoronto

@@ -4,3 +4,8 @@ aws s3api get-bucket-versioning --bucket codedeploy-us-east-1-jasonleetoronto
 
 aws s3api put-bucket-versioning --bucket codedeploy-us-east-1-jasonleetoronto \
 --versioning-configuration Status=Enabled
+
+aws s3api put-object --bucket codedeploy-us-east-1-jasonleetoronto \
+--key templates/launch-ec2-with-s3-get.yml --body launch-ec2-with-s3-get.yml
+
+

@@ -9,3 +9,17 @@ aws s3api put-object --bucket codedeploy-us-east-1-jasonleetoronto \
 --key templates/launch-ec2-with-s3-get.yml --body launch-ec2-with-s3-get.yml
 
 
+aws cloudformation create-stack --stack-name launch-dev-and-prod-ec2-stacks --template-body file://nested-codedeploy-ec2-dev-and-prod-stack.yml
+--capabilities CAPABILITY_NAMED_IAM
+
+aws cloudformation delete-stack --stack-name launch-dev-and-prod-ec2-stacks
+
+aws codepipeline list-action-executions --pipeline-name CodePipelineDemo
+
+
+aws codepipeline list-action-executions --pipeline-name CodePipelineDemo | \
+jq -r '.actionExecutionDetails[] | select(.stageName == "DeployToProd") |del(.input, .output)'
+
+
+aws codepipeline list-action-executions --pipeline-name CodePipelineDemo | \
+jq -r '.actionExecutionDetails[] | select(.stageName == "Deploy") |del(.input, .output)'

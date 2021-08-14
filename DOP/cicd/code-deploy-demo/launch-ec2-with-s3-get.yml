@@ -3,15 +3,19 @@ Description: A sample template
 Parameters:
   SSHKey:
     Type: AWS::EC2::KeyPair::KeyName
-    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Description: The name of the non-cloudformation EC2 KeyPair to enable SSH access to the EC2 instance
     Default: test1
-  AWSManagedCodeDeployoPolicy:
+  EC2RoleForCodeDeploy:
     Type: String
-    Description: AWS managed codedeploy role policy
-    Default: arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+    Description: The name of the non-cloudformation EC2 Role to attach to the EC2 Instance Profile
+    Default: EC2RoleForCodeDeploy
   EC2InstanceTag:
     Type: String
     Description: The tag name for the launched EC2 Instance
+    Default: Dev
+  ECInstanceProfileName:
+    Type: String
+    Default: CodeDeployDemoDevInstanceProfile
 Resources:
   MyInstance:
     Type: AWS::EC2::Instance
@@ -42,27 +46,10 @@ Resources:
   EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: CodeDeployDemoInstanceProfile
+      InstanceProfileName: !Ref ECInstanceProfileName
       Path: "/"
       Roles:
         - !Ref EC2RoleForCodeDeploy
-  EC2RoleForCodeDeploy:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: EC2RoleForCodeDeploy
-      Description: IAM role for EC2 stance for reading S3 objects
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ec2.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: "/"
-      ManagedPolicyArns:
-        - !Ref AWSManagedCodeDeployoPolicy
   SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:

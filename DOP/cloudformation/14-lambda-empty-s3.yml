@@ -1,53 +1,51 @@
-Resources: 
+Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - lambda.amazonaws.com
-          Action:
-          - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
       Path: "/"
       Policies:
-      - PolicyName: root
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - "s3:*"
-            Resource: "*"
-          - Effect: Allow
-            Action:
-            - "logs:CreateLogGroup"
-            - "logs:CreateLogStream"
-            - "logs:PutLogEvents"
-            Resource: "*"
-
-  EmptyS3BucketLambda: 
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:*"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+  EmptyS3BucketLambda:
     Type: "AWS::Lambda::Function"
-    Properties: 
+    Properties:
       Handler: "index.handler"
-      Role: 
-        Fn::GetAtt: 
+      Role:
+        Fn::GetAtt:
           - "LambdaExecutionRole"
           - "Arn"
       Runtime: "python3.7"
-      # we give the function a large timeout 
+      # we give the function a large timeout
       # so we can wait for the bucket to be empty
       Timeout: 600
-      Code: 
+      Code:
         ZipFile: |
           #!/usr/bin/env python
           # -*- coding: utf-8 -*-
           import json
           import boto3
           from botocore.vendored import requests
-
           def handler(event, context):
               try:
                   bucket = event['ResourceProperties']['BucketName']
@@ -62,8 +60,6 @@ Resources:
               except Exception as e:
                   print(e)
                   sendResponseCfn(event, context, "FAILED")
-
-
           def sendResponseCfn(event, context, responseStatus):
               response_body = {'Status': responseStatus,
                               'Reason': 'Log stream name: ' + context.log_stream_name,
@@ -74,7 +70,6 @@ Resources:
                               'Data': json.loads("{}")}
 
               requests.put(event['ResponseURL'], data=json.dumps(response_body))
-
 Outputs:
   StackSSHSecurityGroup:
     Description: The ARN of the Lambda function that empties an S3 bucket

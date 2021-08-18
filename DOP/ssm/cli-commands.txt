@@ -37,3 +37,6 @@ aws ssm get-parameter \
 
 
 aws inspector list-findings
+
+
+aws inspector describe-findings --finding-arns arn:

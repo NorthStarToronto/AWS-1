@@ -34,3 +34,6 @@ aws ssm get-parameters \
 
 aws ssm get-parameter \
 --name /EC2/AMI_ID
+
+
+aws inspector list-findings

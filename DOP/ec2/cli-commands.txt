@@ -1,0 +1,3 @@
+aws ec2 modify-image-attributes \
+--image-id ami- \
+--launch-permission "Add=[{UserId=}]

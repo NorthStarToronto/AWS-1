@@ -1,0 +1,3 @@
+aws sns subscribe --topic-arn \
+--protocol email \
+--notification-endpoint 

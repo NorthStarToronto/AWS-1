@@ -8,3 +8,7 @@ aws sns add-permission -\
 --label Publish-Permission \
 --aws-account-id 987654321098 \
 --action-name Publish
+
+
+aws sns create-topic \
+--name my-topic

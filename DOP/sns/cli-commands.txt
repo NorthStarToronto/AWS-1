@@ -12,3 +12,6 @@ aws sns add-permission -\
 
 aws sns create-topic \
 --name my-topic
+
+
+aws sns list-subscriptions

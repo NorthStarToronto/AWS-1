@@ -1,0 +1,30 @@
+# Launch EC Instance
+aws cloudformation create-stack --stack-name launch-ec2 \
+--template-body file://launch-ec2-with-s3-get.yml \
+--parameters file://cloudformation-parameter.json \
+--capabilities CAPABILITY_NAMED_IAM
+
+# Create CodeDeploy
+aws cloudformation create-stack --stack-name CodeDeploy \
+--template-body file://create-codedeploy-application-group.yml \
+--capabilities CAPABILITY_NAMED_IAM
+
+# Deploy application
+aws deploy push --application-name CodeDeployDemo \
+--s3-location s3://aws-dop-jasonlee-toronto/codedeploy-demo/app.zip \
+--ignore-hidden-files --region us-east-1
+
+aws deploy create-deployment --application-name CodeDeployDemo \
+--s3-location bucket=aws-dop-jasonlee-toronto,key=codedeploy-demo/app.zip,bundleType=zip,eTag=00afc037dcbca4b68f67243811874530,version=NVgyPDZcQoqMsYZX8blfjTkKuTw0vFeD \
+--deployment-group-name MyDevelopmentInstances
+
+
+aws cloudformation create-stack --stack-name nested-create-codedeploy-launch-ec2 --template-body file://nested-codedeploy-ec2-stack.yml --capabilities CAPABILITY_NAMED_IAM
+
+aws cloudformation describe-stacks --stack-name nested-create-codedeploy-launch-ec2
+
+aws cloudformation describe-stack-resources --stack-name nested-create-codedeploy-launch-ec2 | \
+jq -r '.StackResources[] | .LogicalResourceId, .ResourceType, .ResourceStatus'
+
+aws cloudformation describe-stacks --stack-name nested-create-codedeploy-launch-ec2 | \
+jq -r '.Stacks[].Outputs[]'
